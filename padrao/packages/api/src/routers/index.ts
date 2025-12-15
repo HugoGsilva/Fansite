@@ -2,6 +2,7 @@ import { protectedProcedure, publicProcedure, router } from "../index";
 import { profileRouter } from "./profile";
 import { moderationRouter } from "./moderation";
 import { datasetRouter } from "./dataset";
+import { listingsRouter } from "./listings";
 
 export const appRouter = router({
 	healthCheck: publicProcedure.query(() => {
@@ -16,5 +17,6 @@ export const appRouter = router({
 	profile: profileRouter,
 	moderation: moderationRouter,
 	dataset: datasetRouter,
+	listings: listingsRouter,
 });
 export type AppRouter = typeof appRouter;
