@@ -5,6 +5,15 @@
     ".": {
       "default": "./src/index.ts"
     },
+    "./schema": {
+      "default": "./src/schema/index.ts"
+    },
+    "./schema/marketplace": {
+      "default": "./src/schema/marketplace.ts"
+    },
+    "./schema/auth": {
+      "default": "./src/schema/auth.ts"
+    },
     "./*": {
       "default": "./src/*.ts"
     }

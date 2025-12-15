@@ -2,7 +2,8 @@ import { TRPCError } from "@trpc/server";
 import { eq, and } from "drizzle-orm";
 import { protectedProcedure, router } from "../index";
 import { db } from "@padrao/db";
-import { userProfile, session } from "@padrao/db/schema";
+import { userProfile } from "@padrao/db/schema/marketplace";
+import { session } from "@padrao/db/schema/auth";
 import { banUserSchema } from "../validators/marketplace";
 
 const moderatorProcedure = protectedProcedure.use(async ({ ctx, next }) => {

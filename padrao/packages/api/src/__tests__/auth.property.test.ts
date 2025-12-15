@@ -1,7 +1,8 @@
 import { describe, it, expect, beforeAll, afterAll } from "bun:test";
 import fc from "fast-check";
 import { db } from "@padrao/db";
-import { userProfile, user } from "@padrao/db/schema";
+import { userProfile } from "@padrao/db/schema/marketplace";
+import { user } from "@padrao/db/schema/auth";
 import { eq } from "drizzle-orm";
 import { nanoid } from "nanoid";
 
