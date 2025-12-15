@@ -4,6 +4,7 @@ import { moderationRouter } from "./moderation";
 import { datasetRouter } from "./dataset";
 import { listingsRouter } from "./listings";
 import { chatRouter } from "./chat";
+import { notificationsRouter } from "./notifications";
 
 export const appRouter = router({
 	healthCheck: publicProcedure.query(() => {
@@ -20,5 +21,6 @@ export const appRouter = router({
 	dataset: datasetRouter,
 	listings: listingsRouter,
 	chat: chatRouter,
+	notifications: notificationsRouter,
 });
 export type AppRouter = typeof appRouter;
