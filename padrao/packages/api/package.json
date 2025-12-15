@@ -9,10 +9,14 @@
     }
   },
   "type": "module",
-  "scripts": {},
+  "scripts": {
+    "test": "bun test",
+    "test:watch": "bun test --watch"
+  },
   "devDependencies": {
     "typescript": "catalog:",
-    "@padrao/config": "workspace:*"
+    "@padrao/config": "workspace:*",
+    "fast-check": "^3.23.2"
   },
   "dependencies": {
     "@trpc/server": "catalog:",
@@ -21,6 +25,8 @@
     "dotenv": "catalog:",
     "zod": "catalog:",
     "@padrao/auth": "workspace:*",
-    "@padrao/db": "workspace:*"
+    "@padrao/db": "workspace:*",
+    "nanoid": "^5.1.5",
+    "drizzle-orm": "^0.45.1"
   }
 }
