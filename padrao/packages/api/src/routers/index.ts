@@ -3,6 +3,7 @@ import { profileRouter } from "./profile";
 import { moderationRouter } from "./moderation";
 import { datasetRouter } from "./dataset";
 import { listingsRouter } from "./listings";
+import { chatRouter } from "./chat";
 
 export const appRouter = router({
 	healthCheck: publicProcedure.query(() => {
@@ -18,5 +19,6 @@ export const appRouter = router({
 	moderation: moderationRouter,
 	dataset: datasetRouter,
 	listings: listingsRouter,
+	chat: chatRouter,
 });
 export type AppRouter = typeof appRouter;
