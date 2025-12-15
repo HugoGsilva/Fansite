@@ -1,0 +1,254 @@
+# Implementation Plan
+
+- [ ] 1. Setup Database Schema and Core Types
+  - [ ] 1.1 Create marketplace schema file with all tables
+    - Create `packages/db/src/schema/marketplace.ts` with userProfile, datasetItem, listing, chatRoom, chatMessage, notification, report tables
+    - Add proper indexes and foreign key relationships
+    - Export from `packages/db/src/schema/index.ts`
+    - _Requirements: 4.5, 5.1, 6.2, 7.1, 8.1_
+  - [ ] 1.2 Create shared types and validation schemas
+    - Create Zod schemas for all input/output types
+    - Define enums for status, currency, report reasons
+    - _Requirements: 4.4, 8.1, 12.1_
+  - [ ] 1.3 Run database migrations
+    - Generate and apply Drizzle migrations
+    - Verify schema in database
+    - _Requirements: 4.5_
+
+- [ ] 2. Extend Authentication Module
+  - [ ] 2.1 Extend user schema with profile fields
+    - Add discordUsername, role, isBanned fields to Better Auth user
+    - Create profile update procedures
+    - _Requirements: 2.1, 2.3, 2.4_
+  - [ ] 2.2 Write property test for Discord username round-trip
+    - **Property 5: Discord Username Round-Trip**
+    - **Validates: Requirements 2.3, 2.4**
+  - [ ] 2.3 Implement ban functionality
+    - Create ban user procedure that revokes all sessions
+    - Add middleware to check banned status on protected routes
+    - _Requirements: 9.5_
+  - [ ] 2.4 Write property test for ban session revocation
+    - **Property 26: Ban Revokes Sessions**
+    - **Validates: Requirements 9.5**
+
+- [ ] 3. Implement Dataset Module
+  - [ ] 3.1 Create dataset service and tRPC router
+    - Implement search with typeahead functionality
+    - Implement getById for item details
+    - Implement importFromJson for dataset updates
+    - _Requirements: 3.1, 4.1, 4.2, 13.1, 13.2, 13.3_
+  - [ ] 3.2 Write property test for dataset update reflection
+    - **Property 28: Dataset Update Reflection**
+    - **Validates: Requirements 13.2, 13.3**
+  - [ ] 3.3 Write unit tests for dataset operations
+    - Test search functionality
+    - Test attribute schema loading
+    - _Requirements: 3.1, 4.2_
+
+- [ ] 4. Checkpoint - Ensure all tests pass
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [ ] 5. Implement Listings Module
+  - [ ] 5.1 Create listing service with CRUD operations
+    - Implement create, update, delete (soft), markAsSold
+    - Add validation for currency and price (no real currency)
+    - _Requirements: 4.3, 4.4, 4.5, 5.1, 5.2, 5.3, 12.1_
+  - [ ] 5.2 Write property test for currency restriction
+    - **Property 10: Currency Restriction**
+    - **Validates: Requirements 4.4, 12.1**
+  - [ ] 5.3 Write property test for listing creation validation
+    - **Property 11: Listing Creation Validation**
+    - **Validates: Requirements 4.5**
+  - [ ] 5.4 Write property test for edit item immutability
+    - **Property 12: Listing Edit Item Immutability**
+    - **Validates: Requirements 5.1**
+  - [ ] 5.5 Write property test for soft delete preservation
+    - **Property 13: Soft Delete Preservation**
+    - **Validates: Requirements 5.2**
+  - [ ] 5.6 Create listing search with filters and sorting
+    - Implement search with text query, filters (currency, price range, category)
+    - Implement sorting (price, date)
+    - Exclude non-active listings from results
+    - _Requirements: 3.1, 3.2, 3.4, 5.3, 5.6_
+  - [ ] 5.7 Write property test for search results match criteria
+    - **Property 6: Search Results Match Criteria**
+    - **Validates: Requirements 3.1**
+  - [ ] 5.8 Write property test for filter results satisfaction
+    - **Property 7: Filter Results Satisfaction**
+    - **Validates: Requirements 3.2**
+  - [ ] 5.9 Write property test for sort order correctness
+    - **Property 8: Sort Order Correctness**
+    - **Validates: Requirements 3.4**
+  - [ ] 5.10 Write property test for non-active listings exclusion
+    - **Property 14: Non-Active Listings Search Exclusion**
+    - **Validates: Requirements 5.3, 5.6**
+  - [ ] 5.11 Create tRPC router for listings
+    - Wire up all listing procedures
+    - Add authentication middleware
+    - _Requirements: 4.5, 5.1_
+
+- [ ] 6. Checkpoint - Ensure all tests pass
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [ ] 7. Implement Encryption Utilities
+  - [ ] 7.1 Create encryption service for chat messages
+    - Implement encrypt/decrypt functions using AES-256-GCM
+    - Store encryption key securely via environment variable
+    - _Requirements: 6.5, 8.3, 9.3, 12.2_
+  - [ ] 7.2 Write property test for encryption round-trip
+    - **Property 19: Message Encryption Round-Trip**
+    - **Validates: Requirements 6.5, 12.2**
+
+- [ ] 8. Implement Chat Module
+  - [ ] 8.1 Create chat room service
+    - Implement createRoom with self-negotiation prevention
+    - Implement getRoomsByUser
+    - _Requirements: 6.1, 6.2_
+  - [ ] 8.2 Write property test for self-negotiation prevention
+    - **Property 17: Self-Negotiation Prevention**
+    - **Validates: Requirements 6.1**
+  - [ ] 8.3 Write property test for chat room creation
+    - **Property 18: Chat Room Creation**
+    - **Validates: Requirements 6.2**
+  - [ ] 8.4 Create chat message service
+    - Implement sendMessage with encryption
+    - Implement getMessages with decryption
+    - _Requirements: 6.4, 6.5_
+  - [ ] 8.5 Setup WebSocket server for real-time messaging
+    - Configure Hono WebSocket adapter
+    - Implement message broadcasting to room participants
+    - _Requirements: 6.4, 11.3_
+  - [ ] 8.6 Create tRPC router for chat
+    - Wire up chat procedures
+    - Add participant authorization middleware
+    - _Requirements: 6.2_
+
+- [ ] 9. Checkpoint - Ensure all tests pass
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [ ] 10. Implement Notification Module
+  - [ ] 10.1 Create notification service
+    - Implement queue, markDelivered, getUnread
+    - Setup Redis connection for message queue
+    - _Requirements: 7.1, 7.2, 7.3_
+  - [ ] 10.2 Write property test for message notification trigger
+    - **Property 20: Message Notification Trigger**
+    - **Validates: Requirements 7.1**
+  - [ ] 10.3 Implement Discord notification consumer
+    - Create queue consumer for Discord DMs
+    - Implement rate limiting/throttling
+    - _Requirements: 7.2, 7.5, 10.3_
+  - [ ] 10.4 Implement fallback to web notifications
+    - Create fallback logic when Discord fails
+    - _Requirements: 7.3, 7.4_
+  - [ ] 10.5 Write property test for Discord fallback
+    - **Property 21: Discord Fallback to Web**
+    - **Validates: Requirements 7.3**
+  - [ ] 10.6 Write property test for notification queue ordering
+    - **Property 22: Notification Queue Ordering**
+    - **Validates: Requirements 7.4, 10.2**
+  - [ ] 10.7 Create tRPC router for notifications
+    - Wire up notification procedures
+    - _Requirements: 7.1_
+
+- [ ] 11. Implement Report Module
+  - [ ] 11.1 Create report service
+    - Implement create with reason validation
+    - Implement chat snapshot capture with encryption
+    - _Requirements: 8.1, 8.2, 8.3, 8.4_
+  - [ ] 11.2 Write property test for report reason required
+    - **Property 23: Report Reason Required**
+    - **Validates: Requirements 8.1**
+  - [ ] 11.3 Write property test for chat report snapshot
+    - **Property 24: Chat Report Snapshot**
+    - **Validates: Requirements 8.2, 8.3**
+  - [ ] 11.4 Create moderation service
+    - Implement getQueue, resolve, dismiss
+    - Implement chat log decryption for active reports only
+    - _Requirements: 9.1, 9.2, 9.3, 9.4_
+  - [ ] 11.5 Write property test for decrypt only active reports
+    - **Property 25: Decrypt Only Active Reports**
+    - **Validates: Requirements 9.3, 12.3**
+  - [ ] 11.6 Create tRPC router for reports and moderation
+    - Wire up report and moderation procedures
+    - Add moderator role authorization
+    - _Requirements: 8.1, 9.1_
+
+- [ ] 12. Checkpoint - Ensure all tests pass
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [ ] 13. Implement Background Jobs
+  - [ ] 13.1 Create listing expiration cron job
+    - Implement 15-day renewal alert
+    - Implement 30-day auto-archive
+    - _Requirements: 5.4, 5.5_
+  - [ ] 13.2 Write property test for listing expiration alert
+    - **Property 15: Listing Expiration Alert (15 days)**
+    - **Validates: Requirements 5.4**
+  - [ ] 13.3 Write property test for listing auto-archive
+    - **Property 16: Listing Auto-Archive (30 days)**
+    - **Validates: Requirements 5.5**
+  - [ ] 13.4 Create chat log cleanup cron job
+    - Implement 90-day retention policy
+    - _Requirements: 12.4_
+  - [ ] 13.5 Write property test for chat log retention
+    - **Property 27: Chat Log Retention (90 days)**
+    - **Validates: Requirements 12.4**
+
+- [ ] 14. Implement Frontend - Authentication
+  - [ ] 14.1 Create login and registration pages
+    - Implement email/password forms
+    - Add validation and error handling
+    - _Requirements: 1.1, 1.2_
+  - [ ] 14.2 Create profile settings page
+    - Implement Discord username configuration
+    - Display DM permission alert
+    - _Requirements: 2.1, 2.2, 2.3_
+
+- [ ] 15. Implement Frontend - Marketplace
+  - [ ] 15.1 Create listing search page
+    - Implement search with typeahead
+    - Add filters and sorting controls
+    - Mobile-responsive design
+    - _Requirements: 3.1, 3.2, 3.4, 14.2_
+  - [ ] 15.2 Create listing detail page
+    - Display item information and attributes
+    - Add negotiate button
+    - _Requirements: 3.3, 6.2_
+  - [ ] 15.3 Create listing creation form
+    - Implement typeahead item selection
+    - Dynamic attribute fields based on item
+    - Currency selection (Gold/Rubin only)
+    - _Requirements: 4.1, 4.2, 4.3, 4.4_
+  - [ ] 15.4 Create my listings management page
+    - List user's listings with status
+    - Edit, delete, mark as sold actions
+    - _Requirements: 5.1, 5.2, 5.3_
+
+- [ ] 16. Implement Frontend - Chat
+  - [ ] 16.1 Create chat interface
+    - Real-time messaging with WebSocket
+    - RMT warning banner
+    - Mobile-responsive design
+    - _Requirements: 6.3, 6.4, 14.1_
+  - [ ] 16.2 Create chat list page
+    - List active negotiations
+    - Unread message indicators
+    - _Requirements: 6.2_
+  - [ ] 16.3 Implement report user from chat
+    - Report button with reason selection
+    - Confirmation dialog
+    - _Requirements: 8.1, 8.2_
+
+- [ ] 17. Implement Frontend - Moderation (Admin)
+  - [ ] 17.1 Create admin reports queue page
+    - List pending reports
+    - Filter by type (listing/user)
+    - _Requirements: 9.1_
+  - [ ] 17.2 Create report detail page
+    - Display report details and chat logs
+    - Action buttons (dismiss, remove, ban)
+    - _Requirements: 9.2, 9.3, 9.4_
+
+- [ ] 18. Final Checkpoint - Ensure all tests pass
+  - Ensure all tests pass, ask the user if questions arise.
