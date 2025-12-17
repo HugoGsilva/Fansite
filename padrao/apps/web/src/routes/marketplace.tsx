@@ -1,128 +1,115 @@
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { createFileRoute } from "@tanstack/react-router";
 import { trpc } from "@/utils/trpc";
 import { useQuery } from "@tanstack/react-query";
-import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { Search, Filter, Coins, Package } from "lucide-react";
+import { SearchFilters } from "@/components/SearchFilters";
+import { OfferCard, type Offer } from "@/components/OfferCard";
 
 export const Route = createFileRoute("/marketplace")({
-	component: MarketplacePage,
+	component: MarketplaceComponent,
 });
 
-function MarketplacePage() {
-	const [searchQuery, setSearchQuery] = useState("");
-	const [currency, setCurrency] = useState<"gold" | "rubin" | undefined>();
-	const [sortBy, setSortBy] = useState<"price_asc" | "price_desc" | "date_desc">("date_desc");
+function MarketplaceComponent() {
+	const [search, setSearch] = useState("");
+	const [type, setType] = useState("Todos");
+	const [currency, setCurrency] = useState("Todas");
 
-	const { data: listings, isLoading } = useQuery(
+	const currencyFilter = currency === "Todas" ? undefined : currency.toLowerCase() as "gold" | "rubin";
+
+	const listings = useQuery(
 		trpc.listings.search.queryOptions({
-			query: searchQuery || undefined,
-			currency,
-			sortBy,
+			query: search || undefined,
+			currency: currencyFilter,
+			sortBy: "date_desc",
 			limit: 20,
 		}),
 	);
 
-	const { data: categories } = useQuery(trpc.dataset.getCategories.queryOptions());
+	const offers: Offer[] = (listings.data?.items || []).map((listing: any) => ({
+		id: listing.id,
+		itemName: listing.item?.name || "Item",
+		price: listing.price,
+		currency: listing.currency,
+		type: "selling" as const,
+		rarity: "common" as const,
+		category: listing.item?.category,
+		seller: {
+			id: listing.seller?.id || "",
+			name: listing.seller?.name || "Vendedor",
+		},
+		createdAt: listing.createdAt,
+		description: listing.description,
+	}));
+
+	const filteredOffers = offers.filter((offer) => {
+		if (type === "Todos") return true;
+		if (type === "Comprando" && offer.type === "buying") return true;
+		if (type === "Vendendo" && offer.type === "selling") return true;
+		return type === "Todos";
+	});
 
 	return (
-		<div className="container mx-auto py-6 px-4">
-			<div className="flex flex-col gap-6">
-				<div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
-					<h1 className="text-2xl font-bold">RubinMarket</h1>
-					<Link to="/listings/create">
-						<Button>
-							<Package className="h-4 w-4 mr-2" />
-							Criar Anúncio
-						</Button>
-					</Link>
+		<div className="min-h-screen">
+			<div className="bg-secondary/30 border-b border-border/50 py-8">
+				<div className="container mx-auto px-4">
+					<h1 className="text-3xl font-bold mb-2">Marketplace</h1>
+					<p className="text-muted-foreground">
+						Encontre os melhores itens do RubinOT
+					</p>
 				</div>
-
-				<div className="flex flex-col md:flex-row gap-4">
-					<div className="relative flex-1">
-						<Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-						<Input
-							placeholder="Buscar itens..."
-							className="pl-10"
-							value={searchQuery}
-							onChange={(e) => setSearchQuery(e.target.value)}
-						/>
-					</div>
-
-					<div className="flex gap-2">
-						<Select value={currency || "all"} onValueChange={(v) => setCurrency(v === "all" ? undefined : v as "gold" | "rubin")}>
-							<SelectTrigger className="w-32">
-								<SelectValue placeholder="Moeda" />
-							</SelectTrigger>
-							<SelectContent>
-								<SelectItem value="all">Todas</SelectItem>
-								<SelectItem value="gold">Gold</SelectItem>
-								<SelectItem value="rubin">Rubin</SelectItem>
-							</SelectContent>
-						</Select>
-
-						<Select value={sortBy} onValueChange={(v) => setSortBy(v as typeof sortBy)}>
-							<SelectTrigger className="w-40">
-								<SelectValue placeholder="Ordenar" />
-							</SelectTrigger>
-							<SelectContent>
-								<SelectItem value="date_desc">Mais Recentes</SelectItem>
-								<SelectItem value="price_asc">Menor Preço</SelectItem>
-								<SelectItem value="price_desc">Maior Preço</SelectItem>
-							</SelectContent>
-						</Select>
-					</div>
-				</div>
-
-				{isLoading ? (
-					<div className="flex items-center justify-center py-12">
-						<div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full" />
-					</div>
-				) : listings?.items.length === 0 ? (
-					<div className="text-center py-12 text-muted-foreground">
-						<Package className="h-12 w-12 mx-auto mb-4 opacity-50" />
-						<p>Nenhum item encontrado</p>
-					</div>
-				) : (
-					<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-						{listings?.items.map((listing) => (
-							<Link key={listing.id} to="/listings/$id" params={{ id: listing.id }}>
-								<Card className="hover:border-primary transition-colors cursor-pointer h-full">
-									<CardContent className="p-4">
-										<div className="aspect-square bg-muted rounded-lg mb-3 flex items-center justify-center">
-											{listing.item?.image ? (
-												<img
-													src={listing.item.image}
-													alt={listing.item.name}
-													className="w-full h-full object-contain"
-												/>
-											) : (
-												<Package className="h-12 w-12 text-muted-foreground" />
-											)}
-										</div>
-										<h3 className="font-medium truncate">{listing.item?.name}</h3>
-										<p className="text-sm text-muted-foreground truncate">
-											por {listing.seller?.name}
-										</p>
-										<div className="flex items-center gap-1 mt-2">
-											<Coins className="h-4 w-4 text-yellow-500" />
-											<span className="font-bold">
-												{listing.price.toLocaleString()}
-											</span>
-											<span className="text-sm text-muted-foreground capitalize">
-												{listing.currency}
-											</span>
-										</div>
-									</CardContent>
-								</Card>
-							</Link>
-						))}
-					</div>
-				)}
 			</div>
+
+			<SearchFilters
+				searchQuery={search}
+				onSearchChange={setSearch}
+				selectedType={type}
+				onTypeChange={setType}
+				selectedCurrency={currency}
+				onCurrencyChange={setCurrency}
+			/>
+
+			<section className="py-8">
+				<div className="container mx-auto px-4">
+					<div className="flex items-center justify-between mb-6">
+						<h2 className="text-2xl font-bold text-foreground">
+							Ofertas Ativas
+							<span className="ml-2 text-sm font-normal text-muted-foreground">
+								({filteredOffers.length} resultados)
+							</span>
+						</h2>
+					</div>
+
+					{listings.isLoading ? (
+						<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+							{[...Array(6)].map((_, i) => (
+								<div key={i} className="h-64 rounded-lg bg-secondary/50 animate-pulse" />
+							))}
+						</div>
+					) : filteredOffers.length === 0 ? (
+						<div className="text-center py-16">
+							<div className="text-6xl mb-4">🔍</div>
+							<h3 className="text-xl font-semibold text-foreground mb-2">
+								Nenhuma oferta encontrada
+							</h3>
+							<p className="text-muted-foreground">
+								Tente ajustar os filtros ou faça uma busca diferente.
+							</p>
+						</div>
+					) : (
+						<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+							{filteredOffers.map((offer, index) => (
+								<div
+									key={offer.id}
+									className="animate-in fade-in slide-in-from-bottom-4 duration-500"
+									style={{ animationDelay: `${index * 50}ms` }}
+								>
+									<OfferCard offer={offer} />
+								</div>
+							))}
+						</div>
+					)}
+				</div>
+			</section>
 		</div>
 	);
 }
