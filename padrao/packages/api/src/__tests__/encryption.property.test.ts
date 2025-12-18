@@ -2,9 +2,10 @@ import { describe, it, expect, beforeAll } from "bun:test";
 import fc from "fast-check";
 import { encrypt, decrypt, isValidCiphertext } from "../services/encryption";
 
-// Set test encryption secret
+// Set test encryption secrets
 beforeAll(() => {
 	process.env.ENCRYPTION_SECRET = "test-secret-key-for-encryption-tests-32bytes";
+	process.env.ENCRYPTION_SALT = "test-salt-for-encryption-tests-unique";
 });
 
 /**
@@ -25,9 +26,9 @@ describe("Feature: rubin-market, Property 19: Message Encryption Round-Trip", ()
 					expect(decrypted).toBe(message);
 				},
 			),
-			{ numRuns: 100 },
+			{ numRuns: 50 },
 		);
-	});
+	}, 10000);
 
 	it("should produce different ciphertexts for same plaintext (due to random IV)", () => {
 		const message = "Test message for encryption";

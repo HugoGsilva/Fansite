@@ -1,5 +1,6 @@
 import { describe, it, expect, afterAll } from "bun:test";
 import fc from "fast-check";
+import "dotenv/config";
 import { db } from "@padrao/db";
 import { datasetItem } from "@padrao/db/schema/marketplace";
 import { eq } from "drizzle-orm";

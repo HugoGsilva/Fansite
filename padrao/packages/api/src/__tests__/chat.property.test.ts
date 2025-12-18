@@ -1,14 +1,17 @@
 import { describe, it, expect, afterAll } from "bun:test";
 import fc from "fast-check";
+import "dotenv/config";
+
+// Set test encryption secrets before importing modules that use them
+process.env.ENCRYPTION_SECRET = "test-secret-key-for-chat-tests-32bytes!";
+process.env.ENCRYPTION_SALT = "test-salt-for-chat-tests-unique";
+
 import { db } from "@padrao/db";
 import { chatRoom, chatMessage, listing, datasetItem, userProfile } from "@padrao/db/schema/marketplace";
 import { user } from "@padrao/db/schema/auth";
 import { eq } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import { encrypt, decrypt } from "../services/encryption";
-
-// Set test encryption secret
-process.env.ENCRYPTION_SECRET = "test-secret-key-for-chat-tests-32bytes!";
 
 const testIds = {
 	users: [] as string[],

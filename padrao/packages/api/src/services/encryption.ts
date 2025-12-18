@@ -10,8 +10,12 @@ function getEncryptionKey(): Buffer {
 	if (!secret) {
 		throw new Error("ENCRYPTION_SECRET environment variable is required");
 	}
+	const salt = process.env.ENCRYPTION_SALT;
+	if (!salt) {
+		throw new Error("ENCRYPTION_SALT environment variable is required");
+	}
 	// Derive a 32-byte key from the secret using scrypt
-	return scryptSync(secret, "rubin-market-salt", 32);
+	return scryptSync(secret, salt, 32);
 }
 
 export function encrypt(plaintext: string): string {

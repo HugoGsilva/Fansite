@@ -1,13 +1,25 @@
+import { authClient } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { trpc, trpcClient } from "@/utils/trpc";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { Shield, AlertTriangle, Ban, Trash2, X, MessageSquare, Package } from "lucide-react";
 
 export const Route = createFileRoute("/admin/reports")({
 	component: AdminReportsPage,
+	beforeLoad: async () => {
+		const session = await authClient.getSession();
+		if (!session.data) {
+			redirect({
+				to: "/login",
+				throw: true,
+			});
+		}
+		// Verificação de role será feita pela API, mas redirecionamos se não autenticado
+		return { session };
+	},
 });
 
 function AdminReportsPage() {

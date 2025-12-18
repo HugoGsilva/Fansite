@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeAll, afterAll } from "bun:test";
 import fc from "fast-check";
+import "dotenv/config";
 import { db } from "@padrao/db";
 import { userProfile } from "@padrao/db/schema/marketplace";
 import { user } from "@padrao/db/schema/auth";
