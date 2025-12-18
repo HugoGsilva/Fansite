@@ -43,9 +43,9 @@ function MarketplaceComponent() {
 
 	const filteredOffers = offers.filter((offer) => {
 		if (type === "Todos") return true;
-		if (type === "Comprando" && offer.type === "buying") return true;
-		if (type === "Vendendo" && offer.type === "selling") return true;
-		return type === "Todos";
+		if (type === "Comprando") return offer.type === "buying";
+		if (type === "Vendendo") return offer.type === "selling";
+		return true;
 	});
 
 	return (
